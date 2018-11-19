@@ -5,6 +5,7 @@ from forms import UserForm, DeleteForm
 from flask_login import current_user, logout_user
 
 from models.user import User
+from models.user_no_id import UserNoId
 from models.run import Run
 import requests, os, json
 
@@ -20,29 +21,27 @@ def _users():
     return render_template("users.html", users=users)
 
 
-@users.route('/create_user', methods=['GET', 'POST'])
+@users.route('/create_user', methods=['POST'])
 def create_user():
     form = UserForm()
-    if request.method == 'POST':
+    if form.validate_on_submit():
+        data = json.loads(request.data)
+        new_user = UserNoId(data)
+        #form.populate_obj(new_user)
 
-        if form.validate_on_submit():
-            data = json.loads(request.data)
-            new_user = User(data)
-            #form.populate_obj(new_user)
+        #TODO  
+        #new_user.set_password(form.password.data) #pw should be hashed with some salt
+        
+        #db.session.add(new_user)
+        #db.session.commit()
+        new_user_json = new_user.toJson()
+        requests.post(DATASERVICE + '/users' , json=new_user_json)
 
-            #TODO  
-            #new_user.set_password(form.password.data) #pw should be hashed with some salt
-            
-            #db.session.add(new_user)
-            #db.session.commit()
-            new_user_json = new_user.toJson()
-            requests.post(DATASERVICE + '/users' , json=new_user_json)
-
-            return redirect('/users')
+        return redirect('/users')
 
     return render_template('create_user.html', form=form)
 
-@users.route("/delete_user", methods=['GET', 'POST'])
+@users.route("/delete_user", methods=['DELETE'])
 def delete_user():
     form = DeleteForm()
     try:
