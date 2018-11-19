@@ -6,7 +6,7 @@ from flask_login import current_user, logout_user
 
 from models.user import User
 from models.run import Run
-import requests
+import requests, os, json
 
 
 
@@ -26,9 +26,12 @@ def create_user():
     if request.method == 'POST':
 
         if form.validate_on_submit():
-            new_user = User()
-            form.populate_obj(new_user)
-            new_user.set_password(form.password.data) #pw should be hashed with some salt
+            data = json.loads(request.data)
+            new_user = User(data)
+            #form.populate_obj(new_user)
+
+            #TODO  
+            #new_user.set_password(form.password.data) #pw should be hashed with some salt
             
             #db.session.add(new_user)
             #db.session.commit()
