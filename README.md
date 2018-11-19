@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/LorenzoBellomo/BeepBeepPrimer.svg?branch=master)](https://travis-ci.org/LorenzoBellomo/BeepBeepPrimer)
-[![Coverage Status](https://coveralls.io/repos/github/LorenzoBellomo/BeepBeepPrimer/badge.svg?branch=master)](https://coveralls.io/github/LorenzoBellomo/BeepBeepPrimer?branch=master)
+[![Build Status](https://travis-ci.org/giacomodeliberali/BeepBeep-MicroFlaskApp.svg?branch=master)](https://travis-ci.org/giacomodeliberali/BeepBeep-MicroFlaskApp)
+[![Coverage Status](https://coveralls.io/repos/github/giacomodeliberali/BeepBeep-MicroFlaskApp/badge.svg?branch=master)](https://coveralls.io/github/giacomodeliberali/BeepBeep-MicroFlaskApp?branch=master)
 
-BeepBeep Skeleton
+BeepBeep Microservice Flask app
 ==================
 
 How to run the app
@@ -28,7 +28,7 @@ As usual, to start the app run::
 
 You can then run your application with::
 
-    $ python monolith/app.py
+    $ python app.py
     * Running on http://127.0.0.1:5000/
 
 How to create a new user
@@ -41,40 +41,3 @@ How to create a new user
 
 Once authorized, you will be able to see your last 10 runs.
 But for this, we need to ask the Celery worker to fetch them.
-
-How to run the Celery worker
-----------------------------
-
-Make sure you have a redis server running locally on port 6379 by running::
-
-    $ redis-server
-    $ redis-cli
-    $ 127.0.0.1:6379> ping
-        PONG
-
-Then, open another shell and run::
-
-    $ celery worker -A background
-
-This will run a celery microservice that can fetch runs.
-To invoke it, visit http://127.0.0.1:5000/fetch.
-
-Once the runs are retrieved, you should see your last ten runs
-on http://127.0.0.1:5000
-
-How to avoid the first sql alchemy warning
-------------------------------------------
-
-- edit the file ```  /home/you_user_name/.local/lib/python3.6/site-packages/flask_sqlalchemy/__init__.py ```
-
-- at line 788
-        
-        track_modifications = app.config.setdefault(
-            'SQLALCHEMY_TRACK_MODIFICATIONS', None
-        )
-        
-        
-- change None with False
-
-
-
