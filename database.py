@@ -45,52 +45,9 @@ class User(db.Model):
     def get_id(self):
         return self.id
 
-
-class Run(db.Model):
-    __tablename__ = 'run'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.Unicode(128))
-    strava_id = db.Column(db.Integer)
-    distance = db.Column(db.Float)
-    start_date = db.Column(db.DateTime)
-    elapsed_time = db.Column(db.Float)
-    average_speed = db.Column(db.Float)
-    average_heartrate = db.Column(db.Float)
-    total_elevation_gain = db.Column(db.Float)
-    runner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    runner = relationship('User', foreign_keys='Run.runner_id', backref=backref('Run', cascade="all,delete"))
-
-
-
-class Objectives(db.Model):
-    __tablename__ = 'user_objectives'
-    distance = db.Column(db.Float)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    user = relationship('User', foreign_keys='Objectives.user_id', backref=backref('Objectives', cascade="all,delete"))
-
-    def get_distance(self):
-        return self.distance
-
-    def set_distance(self, distance):
-        self.distance = distance
-
-class Challenge(db.Model):
-    __tablename__ = 'challenge'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    runner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    runner = relationship('User', foreign_keys='Challenge.runner_id', backref=backref('Challenge', cascade="all,delete"))
-    run_id = db.Column(db.Integer, db.ForeignKey('run.id'))
-    run = relationship('Run', foreign_keys='Challenge.run_id', backref=backref('Challenge', cascade="all,delete"))
-    latest_run_id = db.Column(db.Integer)
-
 def _delete_user(user):
     # delete cascade
     db.session.delete(user)
     db.session.commit()
 
-def _setObjective(user, distance):
-    new_objective = Objectives()
-    new_objective.distance = distance
-    new_objective.user = user
-    db.session.add(new_objective)
 
