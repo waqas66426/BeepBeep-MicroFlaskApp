@@ -1,9 +1,8 @@
 from flask import request
+from .serializable import Serializable
 
-class Objective:
+class Objective(Serializable):
 
-    def __init__(self, json):
-        data = json.loads(request.data)
-
-        distance = data['distance']
-        user_id = data['user_id']
+    def __init__(self, dict):
+        if dict is not None:
+            self._populate(dict)

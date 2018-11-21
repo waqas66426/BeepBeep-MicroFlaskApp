@@ -58,9 +58,10 @@ def index():
 
             minutes, sec = sec2minsec(elapsed_time)
 
-        objective = None#db.session.query(Objectives).filter(Objectives.user_id == current_user.id).first()
-        if objective:
-            objective_distance = objective.get_distance()
+        #objective = None#db.session.query(Objectives).filter(Objectives.user_id == current_user.id).first()
+        objective = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/objectives').json()
+        if len(objective) > 0:
+            objective_distance = objective[0].get_distance()
         
         #handling challenges
         #colored lists for runs to be challenged
@@ -74,7 +75,7 @@ def index():
             #the challenged run is print in yellow
             yellow.append(challenged_run.run_id)
             #fetching runs stored only after the selection of the challenged run
-            after_challenge_run = db.session.query(Run).filter(current_user.id == Run.runner_id, Run.id > challenged_run.latest_run_id).all()
+            after_challenge_run = []#db.session.query(Run).filter(current_user.id == Run.runner_id, Run.id > challenged_run.latest_run_id).all()
             #fills appropriate lists depending on run performances
             for run in after_challenge_run:                
                 if run.average_speed > challenged_run.run.average_speed and run.distance > challenged_run.run.distance:
