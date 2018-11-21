@@ -22,7 +22,7 @@ def _strava_auth():
     current_user.strava_token = access_token
     db.session.add(current_user)
     db.session.commit()
-    fetch_runs(current_user)
+    # fetch_runs(current_user)
     return redirect('/')
 
 

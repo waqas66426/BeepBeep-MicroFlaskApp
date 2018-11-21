@@ -1,11 +1,20 @@
-from flask import Blueprint, render_template, request, redirect
-
+from flask import Blueprint, render_template, request, redirect, g
+from flask_login import current_user
 from stravalib import Client
-from database import db, Run, User, Objectives, _setObjective, Challenge
+from database import db
+
+from models.user import UserDto
+from models.objective import Objective
+from models.challenge import Challenge
+from models.run import Run
+
 from auth import current_user
 from forms import ObjectiveForm
 from views.auth import *
 from views.util import *
+import requests
+from config import DATASERVICE
+import json
 
 home = Blueprint('home', __name__)
 
@@ -16,7 +25,6 @@ def _strava_auth_url(config):
     url = client.authorization_url(client_id=client_id,
                                    redirect_uri=redirect)
     return url
-
 
 @home.route('/')
 def index():
@@ -39,17 +47,18 @@ def index():
     sec = 0
 
     if current_user is not None and hasattr(current_user, 'id'):
-        runs = db.session.query(Run).filter(Run.runner_id == current_user.id)
-        if runs.count() > 0:
-            for run in runs:
+        runs = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/runs').json()
+        if len(runs) > 0:
+            for r in runs:
+                run = Run(r)
                 avgSpeed += run.average_speed
                 tot_distance += run.distance
                 elapsed_time += run.elapsed_time
-            avgSpeed /= runs.count()
+            avgSpeed /= len(runs)
 
             minutes, sec = sec2minsec(elapsed_time)
 
-        objective = db.session.query(Objectives).filter(Objectives.user_id == current_user.id).first()
+        objective = None#db.session.query(Objectives).filter(Objectives.user_id == current_user.id).first()
         if objective:
             objective_distance = objective.get_distance()
         
@@ -60,7 +69,7 @@ def index():
         green = []
         orange = []
         #fetch the run selected for the challenge
-        challenged_run = db.session.query(Challenge).filter(current_user.id == Challenge.runner_id).first()
+        challenged_run = None# db.session.query(Challenge).filter(current_user.id == Challenge.runner_id).first()
         if challenged_run:
             #the challenged run is print in yellow
             yellow.append(challenged_run.run_id)

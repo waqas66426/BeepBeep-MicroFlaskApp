@@ -1,18 +1,17 @@
-from flask import Blueprint, redirect, render_template, request, jsonify
+from flask import Blueprint, redirect, render_template, request, jsonify, g
 from database import db, _delete_user
 from auth import admin_required
 from forms import UserForm, DeleteForm
 from flask_login import current_user, logout_user
 
-from models.user import User
-from models.user_no_id import UserNoId
+from models.user import UserDto
+from database import User
 from models.run import Run
 import requests, os, json
-
+from config import DATASERVICE
 
 
 users = Blueprint('users', __name__)
-DATASERVICE = os.environ['DATA_SERVICE']
 
 
 @users.route('/users')
@@ -26,7 +25,7 @@ def create_user():
     form = UserForm()
     if form.validate_on_submit():
         data = json.loads(request.data)
-        new_user = UserNoId(data)
+        new_user = UserDto(data)
         #form.populate_obj(new_user)
 
         #TODO  

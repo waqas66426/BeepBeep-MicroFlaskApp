@@ -1,6 +1,8 @@
 from celery import Celery
 from stravalib import Client
-from database import db, User, Run
+from database import db
+from database import User
+from models.run import Run
 
 BACKEND = BROKER = 'redis://localhost:6379'
 celery = Celery(__name__, backend=BACKEND, broker=BROKER)

@@ -1,7 +1,7 @@
 from flask import request
 import json
 
-class User:
+class UserDto:
     def __init__ (self, json):
         data = json.loads(request.data)
         
