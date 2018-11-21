@@ -1,14 +1,11 @@
 from flask import request
 import json
+from .serializable import Serializable
 
-class Objective:
-
-    def __init__(self, json):
-        data = json.loads(request.data)
-
-        objective_id = data['objective_id']
-        distance = data['distance']
-        user_id = data['user_id']
+class Objective(Serializable):
+    def __init__(self, dict):
+        if dict is not None:
+            self._populate(dict)
     
     def toJson (self):
         # return jsonify(
@@ -18,4 +15,3 @@ class Objective:
         # )
 
         return json.dumps(self.__dict__)
-    

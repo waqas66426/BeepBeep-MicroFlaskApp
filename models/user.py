@@ -1,22 +1,11 @@
 from flask import request
 import json
+from .serializable import Serializable
 
-class UserDto:
-    def __init__ (self, json):
-        data = json.loads(request.data)
-        
-        self.id = data['id']
-        self.email = data['email']
-        self.firstname = data['firstname']
-        self.lastname = data['lastname']
-        self.age = data['age']
-        self.weight = data['weight']
-        self.max_hr = data['max_hr']
-        self.rest_hr = data['rest_hr']
-        self.vo2max = data['vo2max']
-        self.is_active = data['is_active']
-        self.is_admin = data['is_admin']
-        self.is_anonymous = data['is_anonymous']
+class UserDto(Serializable):
+    def __init__ (self, dict):
+        if dict is not None:
+            self._populate(dict)
 
     def toJson (self):
         # return jsonify(
