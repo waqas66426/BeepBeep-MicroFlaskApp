@@ -47,13 +47,17 @@ def index():
     sec = 0
 
     if current_user is not None and hasattr(current_user, 'id'):
-        runs = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/runs').json()
+        runListDict = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/runs').json()
+        
+        runs = []
+        for r in runListDict:
+            runs.append(Run(r))
+
         if len(runs) > 0:
             for r in runs:
-                run = Run(r)
-                avgSpeed += run.average_speed
-                tot_distance += run.distance
-                elapsed_time += run.elapsed_time
+                avgSpeed += r.average_speed
+                tot_distance += r.distance
+                elapsed_time += r.elapsed_time
             avgSpeed /= len(runs)
 
             minutes, sec = sec2minsec(elapsed_time)

@@ -48,7 +48,8 @@ class User(db.Model):
             value = getattr(self, attr)
             if isinstance(value, Decimal):
                 value = float(value)
-            res[attr] = (value if value is not None else "")
+            if value is not None:
+                res[attr] = value
         if secure:
             res['strava_token'] = self.strava_token
         return res
