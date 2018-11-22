@@ -3,9 +3,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import enum
 from sqlalchemy.orm import relationship, backref
 from flask_sqlalchemy import SQLAlchemy
-
+from decimal import Decimal
 
 db = SQLAlchemy()
+
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -41,12 +42,22 @@ class User(db.Model):
         self._authenticated = checked
         return self._authenticated
 
+    def to_json(self, secure=False):
+        res = {}
+        for attr in ('id', 'email', 'firstname', 'lastname', 'age', 'weight', 'max_hr', 'rest_hr', 'vo2max', 'password'):
+            value = getattr(self, attr)
+            if isinstance(value, Decimal):
+                value = float(value)
+            res[attr] = (value if value is not None else "")
+        if secure:
+            res['strava_token'] = self.strava_token
+        return res
+
     def get_id(self):
         return self.id
+
 
 def _delete_user(user):
     # delete cascade
     db.session.delete(user)
     db.session.commit()
-
-

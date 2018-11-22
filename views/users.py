@@ -7,7 +7,9 @@ from flask_login import current_user, logout_user
 from models.user import UserDto
 from database import User
 from models.run import Run
-import requests, os, json
+import requests
+import os
+import json
 from config import DATASERVICE
 
 
@@ -20,25 +22,30 @@ def _users():
     return render_template("users.html", users=users)
 
 
-@users.route('/create_user', methods=['POST'])
+@users.route('/create_user', methods=['POST', 'GET'])
 def create_user():
     form = UserForm()
     if form.validate_on_submit():
-        data = json.loads(request.data)
-        new_user = UserDto(data)
-        #form.populate_obj(new_user)
+        new_user = User()        
+        form.populate_obj(new_user)
+        new_user.set_password(form.password.data)
 
-        #TODO  
-        #new_user.set_password(form.password.data) #pw should be hashed with some salt
-        
-        #db.session.add(new_user)
-        #db.session.commit()
-        new_user_json = new_user.toJson()
-        requests.post(DATASERVICE + '/users' , json=new_user_json)
+        print(new_user.to_json())
+
+        # response = requests.post(DATASERVICE + '/users', json=new_user.to_json())
+
+        # new_user.id = response['id']
+
+        # print(new_user.to_json())
+
+        # db.session.add(new_user)
+        # db.session.commit()
+        # print(response)
 
         return redirect('/users')
 
     return render_template('create_user.html', form=form)
+
 
 @users.route("/delete_user", methods=['DELETE'])
 def delete_user():
@@ -49,7 +56,7 @@ def delete_user():
         return redirect('/login')
 
     if form.validate_on_submit():
-        #verify user password
+        # verify user password
         password = form.data['password']
 
         #q = db.session.query(User).filter(User.id == current_user.id)
@@ -58,7 +65,7 @@ def delete_user():
 
         if user is not None and user.authenticate(password):
             logout_user()
-            #delete the user and all his data
+            # delete the user and all his data
             _delete_user(user)
             return redirect('/users')
 
