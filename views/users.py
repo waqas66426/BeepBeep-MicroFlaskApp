@@ -32,15 +32,14 @@ def create_user():
 
         print(new_user.to_json())
 
-        # response = requests.post(DATASERVICE + '/users', json=new_user.to_json())
+        response = requests.post(DATASERVICE + '/users', json=new_user.to_json())
 
-        # new_user.id = response['id']
-
+    
         # print(new_user.to_json())
 
-        # db.session.add(new_user)
-        # db.session.commit()
-        # print(response)
+        new_user.id = response.json()['id']
+        db.session.add(new_user)
+        db.session.commit()
 
         return redirect('/users')
 
