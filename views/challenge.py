@@ -1,9 +1,16 @@
 from flask import Blueprint, redirect, render_template, request
-from database import db, User, Run, _delete_user, Challenge
+from database import db, _delete_user, Challenge
 from sqlalchemy import func
 from auth import admin_required
 from forms import UserForm, ChallengeForm
 from flask_login import current_user, logout_user
+
+from models.user import UserDto
+from database import User
+from models.run import Run
+import requests, os, json
+from config import DATASERVICE
+
 
 challenge = Blueprint('challenge', __name__)
 
@@ -16,7 +23,11 @@ def post_challenge():
         return redirect('/?challengeError=Please select exactly one run to challenge')
 
     if current_user is not None and hasattr(current_user, 'id'):
-        prev_challenged_run = db.session.query(Challenge).filter(Challenge.runner_id == current_user.id).first()
+        #prev_challenged_run = db.session.query(Challenge).filter(Challenge.runner_id == current_user.id).first()
+        
+        #TODO add .FIRST()
+        prev_challenged_run = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/challenges').json()
+
         #found a previosly challenged run, gotta make it unchallenged and then challenge the next one
         if prev_challenged_run:
             db.session.delete(prev_challenged_run)
