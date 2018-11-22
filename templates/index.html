@@ -9,24 +9,22 @@
 <body>
   {% include 'header.html' %}
   {% if current_user.is_authenticated %}
+  {% if not current_user.strava_token %}
+  {% include 'authorize_strava.html' %}
+  {% else %}
   <div class="intro-header">
     <div class="container">
       <div class="row">
-        {% if not current_user.strava_token %}
-        <a href="{{strava_auth_url}}">Authorize Strava Access</a>
-        {% else %}
         <h2>Your last 10 runs</h2>
         <form action="/comparisons" method="post">
           {% for run in runs %}
           <div>
             <div class="runs">
-            <input type="checkbox" name="runs" value="{{run.id}}">
+              <input type="checkbox" name="runs" value="{{run.id}}">
               <!--coloring the fetched runs checking their id in the lists-->
-              <a href="/runs/{{run.id}}" {% if run.id in challenged_run %} style="color:yellow"
-                                       {% elif run.id in challenge_green %} style="color:green"
-                                       {% elif run.id in challenge_red %} style="color:red"                                       
-                                       {% elif run.id in challenge_orange %} style="color:orangered"
-                                       {% endif %}> {{run.name}} </a>
+              <a href="/runs/{{run.id}}" {% if run.id in challenged_run %} style="color:yellow" {% elif run.id in
+                challenge_green %} style="color:green" {% elif run.id in challenge_red %} style="color:red" {% elif
+                run.id in challenge_orange %} style="color:orangered" {% endif %}> {{run.title}} </a>
             </div>
           </div>
           {% endfor %}
@@ -43,7 +41,7 @@
           </p>
           {% endif %}
           <input type="submit" value="Compare" />
-          <input type="submit" formaction="/challenge" value="Challenge"/>
+          <input type="submit" formaction="/challenge" value="Challenge" />
         </form>
         <button onclick="location.href='/objective'" type="button">Set Objective</button>
       </div>
@@ -55,7 +53,6 @@
       <h2>Stats</h2>
       <p>Total average speed: <span id="avgSpd">{{avgSpeed}}</span> km/h</p>
       <p>Total running time: <span id="minsec">{{ '%0.0f' | format(minutes) }}' {{ '%0.0f' | format(sec)}}''</span></p>
-      {% endif %}
     </div>
   </div>
 
@@ -84,9 +81,10 @@
         <li> green if it is better than the challenged one </li>
         <li> red if it is worse than the challenged one </li>
         <li> orange if they are not comparable </li>
-      </ul> 
+      </ul>
     </div>
   </div>
+  {% endif %}
 
   {% else %}
   <div class="intro-header" style="height: 100%;">
