@@ -6,6 +6,8 @@ from stravalib import Client
 from database import db, User
 from forms import LoginForm
 from background import *
+import requests
+from config import DATASERVICE
 
 auth = Blueprint('auth', __name__)
 
@@ -20,6 +22,12 @@ def _strava_auth():
                       client_secret=auth.app.config['STRAVA_CLIENT_SECRET'],
                       code=code)
     current_user.strava_token = access_token
+
+    user = requests.get(DATASERVICE + '/users/' + str(current_user.id)).json()
+    user['strava_token'] = access_token
+    requests.put(DATASERVICE + '/users/' + str(current_user.id), json=user).json()
+
+
     db.session.add(current_user)
     db.session.commit()
     # fetch_runs(current_user)
