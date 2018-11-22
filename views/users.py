@@ -26,22 +26,23 @@ def _users():
 def create_user():
     form = UserForm()
     if form.validate_on_submit():
-        new_user = User()        
+        new_user = User()
         form.populate_obj(new_user)
         new_user.set_password(form.password.data)
 
         print(new_user.to_json())
 
-        response = requests.post(DATASERVICE + '/users', json=new_user.to_json())
+        response = requests.post(
+            DATASERVICE + '/users', json=new_user.to_json())
 
-    
-        # print(new_user.to_json())
+        if(response.status_code == 201):
+            # print(new_user.to_json())
+            new_user.id = response.json()['id']
+            db.session.add(new_user)
+            db.session.commit()
 
-        new_user.id = response.json()['id']
-        db.session.add(new_user)
-        db.session.commit()
-
-        return redirect('/users')
+            return redirect('/users')
+        
 
     return render_template('create_user.html', form=form)
 
