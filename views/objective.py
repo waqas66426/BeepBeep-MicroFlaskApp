@@ -14,27 +14,32 @@ objective = Blueprint('objective', __name__)
 
 DATASERVICE = os.environ['DATA_SERVICE']
 
+
 @objective.route('/objective', methods=['GET', 'POST'])
 def set_objective():
     form = ObjectiveForm()
 
     if form.validate_on_submit():
+        existing_objective = None
         objective_distance = km2m(form.data['distance'])
         q = db.session.query(User).filter(User.email == current_user.email)
         user = q.first()
 
         #existing_objective = db.session.query(Objectives).filter(Objectives.user == user).first()
-        obj_json = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/objectives').json() 
-        existing_objective = Objective(obj_json)
+        obj_json = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/objectives').json()
+
+        if obj_json:
+            existing_objective = Objective(obj_json[0])
 
         if existing_objective is None:
             #_setObjective(user, objective_distance)
-            requests.post(DATASERVICE + '/users/' + str(current_user.id) + '/objectives', json = objective_distance)
+            requests.post(DATASERVICE + '/users/' + str(current_user.id) + '/objectives', json = { 'distance' : objective_distance})
 
         else:
             #existing_objective.set_distance(objective_distance)
             existing_objective.distance = objective_distance
-            requests.put(DATASERVICE + '/users/' + str(current_user.id) + '/objectives' + str(existing_objective.objective_id), json = existing_objective.toJson())
+            r = requests.put(DATASERVICE + '/users/' + str(current_user.id) + '/objectives/' + str(existing_objective.id), json = existing_objective.toJson())
+
 
         #db.session.commit()
         return redirect("/")

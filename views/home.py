@@ -64,8 +64,8 @@ def index():
 
         #objective = None#db.session.query(Objectives).filter(Objectives.user_id == current_user.id).first()
         objective = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/objectives').json()
-        if len(objective) > 0:
-            objective_distance = objective[0].get_distance()
+        if objective:
+            objective_distance = objective[0]['distance']
         
         #handling challenges
         #colored lists for runs to be challenged

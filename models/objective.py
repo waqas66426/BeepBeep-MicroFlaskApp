@@ -14,4 +14,4 @@ class Objective(Serializable):
         #     user_id = self.user_id
         # )
 
-        return json.dumps(self.__dict__)
+        return json.loads(json.dumps(self.__dict__))
