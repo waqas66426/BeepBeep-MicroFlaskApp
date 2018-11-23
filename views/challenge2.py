@@ -28,11 +28,10 @@ def post_challenge():
         return redirect('/?challengeError=Please select exactly one run to challenge')
 
     if current_user is not None and hasattr(current_user, 'id'):
-        #prev_challenged_run = db.session.query(Challenge).filter(Challenge.runner_id == current_user.id).first()
+        # prev_challenged_run = db.session.query(Challenge).filter(Challenge.runner_id == current_user.id).first()
 
-        # TODO add .FIRST()
-        prev_challenged_run = requests.get(
-            DATASERVICE + '/users/' + str(current_user.id) + '/challenges').json()
+        # TODO add .FIRST() see above
+        prev_challenged_run = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/challenges').json()
 
         print("****************************")
         print("****************************")
@@ -45,35 +44,49 @@ def post_challenge():
             db.session.delete(prev_challenged_run)
             if prev_challenged_run.run_id != int(runIds[0]):
                 # I'm not unchallenging a run, but challenging a new one
-                new_challenge = db.session.query(Run).filter(
-                    Run.runner_id == current_user.id, Run.id == runIds[0]).first()
-                    
+                #new_challenge = db.session.query(Run).filter(Run.runner_id == current_user.id, Run.id == runIds[0]).first()
+                
+                # TODO
+                # new_challenge = requests.post(DATASERVICE + '/users' + str(current_user.id) + '/challenges', json=new_user.to_json())
+                
                 if new_challenge is not None:
+                    # TODO
+                    # complete dictionary
                     challenge_dict = {
                         "id": new_challenge
                         "run_id": runIds[0]
                         "runner": current_user
                         "runner_id": current_user.id
-                        
-                    }
 
+                    }
+                    # ???
                     latest_id = db.session.query(func.max(Run.id)).scalar()
                     challenge.latest_run_id = latest_id
                     db.session.add(challenge)
             db.session.commit()
+
         else:  # just challenge the new one
-            #new_challenge = db.session.query(Run).filter(Run.runner_id == current_user.id, Run.id == runIds[0]).first()
-            #new_challenge = requests.post(DATASERVICE + '/users' + str(current_user.id) + '/challenges', json=new_user.to_json())
+
+            # new_challenge = db.session.query(Run).filter(Run.runner_id == current_user.id, Run.id == runIds[0]).first()
+
+            # TODO
+            # new_challenge = requests.post(DATASERVICE + '/users' + str(current_user.id) + '/challenges', json=new_user.to_json())
 
             if new_challenge is not None:
-                challenge = Challenge()
-                challenge.run_id = runIds[0]
-                challenge.runner = current_user
-                challenge.runner_id = current_user.id
-                challenge.run = new_challenge
+                # TODO
+                # complete dictionary
+                challenge_dict = {
+                    "id": new_challenge
+                    "run_id": runIds[0]
+                    "runner": current_user
+                    "runner_id": current_user.id
+
+                }
+                # ???
                 latest_id = db.session.query(func.max(Run.id)).scalar()
                 challenge.latest_run_id = latest_id
                 db.session.add(challenge)
+
             db.session.commit()
     else:
         return redirect("/login")
