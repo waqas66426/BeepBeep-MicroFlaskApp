@@ -6,14 +6,11 @@ from forms import ObjectiveForm
 from views.auth import *
 from views.util import *
 from models.objective import Objective
-import requests
-import os
+import requests, os
+from config import DATASERVICE
 
 
 objective = Blueprint('objective', __name__)
-
-DATASERVICE = os.environ['DATA_SERVICE']
-
 
 @objective.route('/objective', methods=['GET', 'POST'])
 def set_objective():

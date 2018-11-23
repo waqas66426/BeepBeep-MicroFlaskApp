@@ -12,9 +12,8 @@ from auth import current_user
 from forms import ObjectiveForm
 from views.auth import *
 from views.util import *
-import requests
+import requests, json
 from config import DATASERVICE
-import json
 
 home = Blueprint('home', __name__)
 

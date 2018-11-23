@@ -3,12 +3,11 @@ from database import db
 from auth import current_user
 from models.run import Run
 import requests
+from config import DATASERVICE
 import os
 
 
 runs = Blueprint('runs', __name__)
-
-DATASERVICE = os.environ['DATA_SERVICE']
 
 @runs.route('/runs/<int:run_id>')
 def _runs(run_id):

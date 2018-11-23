@@ -11,7 +11,6 @@ from models.run import Run
 import requests, os, json
 from config import DATASERVICE
 
-
 challenge = Blueprint('challenge', __name__)
 
 @challenge.route("/challenge", methods=['POST'])
