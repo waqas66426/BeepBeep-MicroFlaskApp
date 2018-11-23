@@ -73,8 +73,9 @@ def index():
         green = []
         orange = []
         #fetch the run selected for the challenge
-        challenged_run = None# db.session.query(Challenge).filter(current_user.id == Challenge.runner_id).first()
-        if challenged_run:
+        challenged_run_reply = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/challenges').json()
+        if challenged_run_reply:
+            challenged_run = challenged_run_reply[0]
             #the challenged run is print in yellow
             yellow.append(challenged_run.run_id)
             #fetching runs stored only after the selection of the challenged run
