@@ -4,12 +4,11 @@ from auth import admin_required
 from forms import UserForm, ComparisonsForm
 from flask_login import current_user, logout_user
 from models.run import Run
+from config import DATASERVICE
 import requests
 import os
 
 comparisons = Blueprint('comparisons', __name__)
-
-DATASERVICE = os.environ['DATA_SERVICE']
 
 @comparisons.route("/comparisons", methods=['POST'])
 def post_comparisons():
