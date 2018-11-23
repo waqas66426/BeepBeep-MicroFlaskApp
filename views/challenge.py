@@ -6,57 +6,74 @@ from forms import UserForm, ChallengeForm
 from flask_login import current_user, logout_user
 
 from models.user import UserDto
-from database import User
 from models.run import Run
 from models.challenge import Challenge
-import requests, os, json
+from database import User
+import requests
+import os
+import json
 from config import DATASERVICE
 
+
 challenge = Blueprint('challenge', __name__)
+
 
 @challenge.route("/challenge", methods=['POST'])
 def post_challenge():
 
     form = ChallengeForm()
     runIds = form.data['runs']
+
     if runIds is None or len(runIds) != 1:
         return redirect('/?challengeError=Please select exactly one run to challenge')
 
     if current_user is not None and hasattr(current_user, 'id'):
-        #prev_challenged_run = db.session.query(Challenge).filter(Challenge.runner_id == current_user.id).first()
-        
-        #TODO add .FIRST()
-        prev_challenged_run = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/challenges').json()
 
-        #found a previosly challenged run, gotta make it unchallenged and then challenge the next one
-        if prev_challenged_run:
-            db.session.delete(prev_challenged_run)
-            if prev_challenged_run.run_id != int(runIds[0]):
-                # I'm not unchallenging a run, but challenging a new one
-                new_challenge = db.session.query(Run).filter(Run.runner_id == current_user.id, Run.id == runIds[0]).first()
-                if new_challenge is not None:
-                    challenge = Challenge()
-                    challenge.run_id = runIds[0]
-                    challenge.runner = current_user
-                    challenge.runner_id = current_user.id
-                    challenge.run = new_challenge
-                    latest_id = db.session.query(func.max(Run.id)).scalar()
-                    challenge.latest_run_id = latest_id
-                    db.session.add(challenge)
-            db.session.commit()
-        else: # just challenge the new one
-            new_challenge = db.session.query(Run).filter(Run.runner_id == current_user.id, Run.id == runIds[0]).first()
-            if new_challenge is not None:
-                challenge = Challenge()
-                challenge.run_id = runIds[0]
-                challenge.runner = current_user
-                challenge.runner_id = current_user.id
-                challenge.run = new_challenge
-                latest_id = db.session.query(func.max(Run.id)).scalar()
-                challenge.latest_run_id = latest_id
-                db.session.add(challenge)
-            db.session.commit()
+        prev_challenged_run_reply = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/challenges').json()
+        
+        # print(prev_challenged_run_reply)
+        # print(runIds)
+        
+        prev_challenged_run = -1
+
+        if prev_challenged_run_reply:
+            #I did not get a 404
+            prev_challenged_run = prev_challenged_run_reply[0]
+        
+            # if there was a challenge and it was not the same as before
+            if prev_challenged_run != runIds[0]:
+                # I delete the previous challenge
+                requests.delete(DATASERVICE + '/users/' + str(current_user.id) + '/challenges')
+                # I retreive the latest fetched run, so I can fetch the following ones
+                max_id_reply = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/runs/getMaxId').json()
+            
+                challenge_dict = {
+                    "id": 0,
+                    "run_id": int (runIds[0]),
+                    "latest_run_id": max_id_reply['max_id'],
+                    "runner_id": current_user.id
+                }
+                reply = requests.post(DATASERVICE + '/users' + str(current_user.id) + '/challenges', json=json.dumps(challenge_dict))
+                print("*****************************")
+                print(json.dumps(challenge_dict))
+                print(max_id_reply)
+                print(reply)
+                print("*****************************")
+        else:
+            max_id_reply = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/runs/getMaxId').json()
+            challenge_dict = {
+                "id": 0,
+                "run_id": int (runIds[0]),
+                "latest_run_id": max_id_reply['max_id'],
+                "runner_id": current_user.id
+            }
+            reply = requests.post(DATASERVICE + '/users' + str(current_user.id) + '/challenges', json=json.dumps(challenge_dict))
+            print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+            print(json.dumps(challenge_dict))
+            print(max_id_reply)
+            print(reply)
+            print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
     else:
         return redirect("/login")
-    
+
     return redirect("/")
