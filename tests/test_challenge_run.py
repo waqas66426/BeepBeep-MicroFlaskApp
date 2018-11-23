@@ -112,6 +112,8 @@ def test_challenge_run(client, db_instance):
         },
         follow_redirects=True
     )
+
+    challenged = db_instance.session.query(Challenge).filter(user.id == Run.runner_id).first()
     assert challenged
     assert challenged.run_id == 2
 
@@ -122,6 +124,8 @@ def test_challenge_run(client, db_instance):
         },
         follow_redirects=True
     )
+
+    challenged = db_instance.session.query(Challenge).filter(user.id == Run.runner_id).first()
     assert challenged
     assert challenged.run_id == 3
 
