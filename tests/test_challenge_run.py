@@ -104,3 +104,27 @@ def test_challenge_run(client, db_instance):
     challenged = db_instance.session.query(Challenge).filter(user.id == Run.runner_id).first()
 
     assert not challenged
+
+    res = client.post(
+        '/challenge',
+        data={
+            'runs': ['2']
+        },
+        follow_redirects=True
+    )
+    assert challenged
+    assert challenged.run_id == 2
+
+    res = client.post(
+        '/challenge',
+        data={
+            'runs': ['3']
+        },
+        follow_redirects=True
+    )
+    assert challenged
+    assert challenged.run_id == 3
+
+    toCompare = db_instance.session.query(Run).filter(user.id == Run.runner_id, Run.id > challenged.latest_run_id).all()
+    assert not toCompare
+

@@ -36,3 +36,11 @@ def test_objective(client, db_instance):
 
     #check the view converting the distance to km
     assert objective_view == objective_distance
+
+    res = client.post(
+        '/objective',
+        data={
+            'distance': ['2000']
+        },
+        follow_redirects=True
+    )
