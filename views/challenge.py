@@ -31,30 +31,38 @@ def post_challenge():
 
         prev_challenged_run_reply = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/challenges').json()
         
-        # print(prev_challenged_run_reply)
-        # print(runIds)
+        print(":::::::::::::::::::::")
+        print(prev_challenged_run_reply)
+        print(runIds)
+        print(":::::::::::::::::::::")
         
-        prev_challenged_run = -1
+        # prev_challenged_run = -1
 
         if prev_challenged_run_reply:
             #I did not get a 404
-            prev_challenged_run = prev_challenged_run_reply[0]
+            prev_challenged_run = prev_challenged_run_reply[0]['id']
         
+            print(":::::::::::::::::::::")
+            print(prev_challenged_run_reply)
+            print(prev_challenged_run)
+            print(runIds)
+            print(":::::::::::::::::::::")
             # if there was a challenge and it was not the same as before
             if prev_challenged_run != runIds[0]:
                 # I delete the previous challenge
-                requests.delete(DATASERVICE + '/users/' + str(current_user.id) + '/challenges')
+                resp = requests.delete(DATASERVICE + '/users/' + str(current_user.id) + '/challenges/' + str(runIds[0]))
                 # I retreive the latest fetched run, so I can fetch the following ones
                 max_id_reply = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/runs/getMaxId').json()
             
                 challenge_dict = {
-                    "id": 0,
+                    "id": 1,
+                    "runner_id": current_user.id,
                     "run_id": int (runIds[0]),
                     "latest_run_id": max_id_reply['max_id'],
-                    "runner_id": current_user.id
                 }
-                reply = requests.post(DATASERVICE + '/users' + str(current_user.id) + '/challenges', json=json.dumps(challenge_dict))
+                reply = requests.post(DATASERVICE + '/users/' + str(current_user.id) + '/challenges', json=challenge_dict)
                 print("*****************************")
+                print(resp)
                 print(json.dumps(challenge_dict))
                 print(max_id_reply)
                 print(reply)
@@ -62,12 +70,12 @@ def post_challenge():
         else:
             max_id_reply = requests.get(DATASERVICE + '/users/' + str(current_user.id) + '/runs/getMaxId').json()
             challenge_dict = {
-                "id": 0,
+                "id": 1,
+                "runner_id": current_user.id,
                 "run_id": int (runIds[0]),
                 "latest_run_id": max_id_reply['max_id'],
-                "runner_id": current_user.id
-            }
-            reply = requests.post(DATASERVICE + '/users' + str(current_user.id) + '/challenges', json=json.dumps(challenge_dict))
+                }
+            reply = requests.post(DATASERVICE + '/users/' + str(current_user.id) + '/challenges', json=challenge_dict))
             print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
             print(json.dumps(challenge_dict))
             print(max_id_reply)
