@@ -84,6 +84,7 @@ def index():
             challenged_run = challenged_run_reply[0]
             # the challenged run is print in yellow
             yellow.append(challenged_run['run_id'])
+
             # fetching runs stored only after the selection of the challenged run
             #after_challenge_run = []
             #db.session.query(Run).filter(current_user.id == Run.runner_id, Run.id > challenged_run.latest_run_id).all()
@@ -96,11 +97,6 @@ def index():
 
             last_run = requests.get(
                 DATASERVICE + '/users/' + str(current_user.id) + '/runs/' + str(last_run_id)).json()
-            print("@@@@@@@@@@@@@@@@@@@@@")
-            print(challenged_run)
-            print(ch_run)
-            print(last_run)
-            print("@@@@@@@@@@@@@@@@@@@@@")
 
             last_run_pace = last_run['distance'] / last_run['elapsed_time']
             ch_run_pace = ch_run['distance'] / ch_run['elapsed_time']
