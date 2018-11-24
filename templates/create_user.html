@@ -10,6 +10,9 @@
   <div class="intro-header">
       <div class="container">
           <div class="row">
+            <!-- Not working ?? -->
+              {% if existingUserError %}
+              <p> {{ challengeError }} </p>
               <form action="" method="POST">
                 {{ form.hidden_tag() }}
                 <dl>

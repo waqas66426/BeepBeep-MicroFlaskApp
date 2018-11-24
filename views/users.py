@@ -29,18 +29,24 @@ def create_user():
         form.populate_obj(new_user)
         new_user.set_password(form.password.data)
 
-        print(new_user.to_json())
+        response = requests.get( DATASERVICE + '/users').json()
 
-        response = requests.post(
-            DATASERVICE + '/users', json=new_user.to_json())
+        if len(response) > 0:
+            if not next((user for user in response if user["email"] == new_user.email), True):
 
-        if(response.status_code == 201):
-            # print(new_user.to_json())
-            new_user.id = response.json()['id']
-            db.session.add(new_user)
-            db.session.commit()
+                response = requests.post(
+                    DATASERVICE + '/users', json=new_user.to_json())
 
-            return redirect('/users')
+                if(response.status_code == 201):
+                    new_user.id = response.json()['id']
+                    db.session.add(new_user)
+                    db.session.commit()
+
+                    return redirect('/users')
+        
+        
+        return redirect('/create_user?challengeError=Please select exactly one run to challenge')
+
         
 
     return render_template('create_user.html', form=form)
