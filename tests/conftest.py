@@ -1,8 +1,11 @@
 import pytest
 import os
-from app import create_testing_app
 from database import db
 import subprocess
+
+# init the DATA_SERVICE var
+os.environ['DATA_SERVICE'] = "http://localhost:5002"
+from app import create_testing_app
 
 
 @pytest.fixture
