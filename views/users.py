@@ -49,6 +49,7 @@ def create_user():
 @users.route("/delete_user", methods=['POST', 'GET'])
 def delete_user():
     form = DeleteForm()
+    status_code = 200
     try:
         email = current_user.email
     except AttributeError:
@@ -66,7 +67,8 @@ def delete_user():
             logout_user()
             # delete the user and all his data
             _delete_user(user)
+            return redirect('/users')
+        else:
+            status_code = 401
 
-        return redirect('/users')
-
-    return render_template('delete_user.html', form=form, user_email=email)
+    return render_template('delete_user.html', form=form, user_email=email), status_code

@@ -38,17 +38,20 @@ def _strava_auth():
 def login():
     form = LoginForm()
     error = False
+    status_code = 200
     if form.validate_on_submit():
         email, password = form.data['email'], form.data['password']
         q = db.session.query(User).filter(User.email == email)
         user = q.first()
+        print(email + password)
         if user is not None and user.authenticate(password):
             login_user(user)
             return redirect('/')
         else:
             error = True
+            status_code = 401
 
-    return render_template('login.html', form=form, error = error)
+    return render_template('login.html', form=form, error=error), status_code
 
 
 @auth.route("/logout")
