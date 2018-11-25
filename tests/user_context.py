@@ -1,3 +1,12 @@
+# USAGE CASE:
+
+#  with UserContext(client,email,password) as uc:
+#
+#      perform actions with the created and logged user
+#      condition_to_verify = Method_to_test()
+#
+#  exited from the context (the user has been deleted)
+#  assert condition_to_verify
 
 class UserContext():
 

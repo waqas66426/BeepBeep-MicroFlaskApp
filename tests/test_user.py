@@ -10,27 +10,27 @@ def test_create_user(client, db_instance):
     UserContext.create_user(client, email, password)
 
     user = db_instance.session.query(User).filter(User.email == email).first()
-    assert user is not None
-
     delete_logged_user(client, email, password)
+
+    assert user is not None
 
 
 def test_login_user(client, db_instance):
     UserContext.create_user(client, email, password)
 
     response = UserContext.login(client, email, password)
-    assert response.status_code == 200
-
     UserContext.delete_user(client, password)
+
+    assert response.status_code == 20000
 
 
 def test_badlogin_user(client, db_instance):
     UserContext.create_user(client, email, password)
 
     response = UserContext.login(client, email, password + "wrong")
-    assert response.status_code == 401
-
     delete_logged_user(client, email, password)
+
+    assert response.status_code == 401
 
 
 def test_delete_user(client, db_instance):
@@ -44,6 +44,6 @@ def test_baddelete_user(client, db_instance):
     create_login_user(client, email, password)
 
     response = UserContext.delete_user(client, password + "wrong")
-    assert response.status_code == 401
-
     UserContext.delete_user(client, password)
+
+    assert response.status_code == 401
