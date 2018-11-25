@@ -21,7 +21,7 @@ def test_login_user(client, db_instance):
     response = UserContext.login(client, email, password)
     UserContext.delete_user(client, password)
 
-    assert response.status_code == 20000
+    assert response.status_code == 200
 
 
 def test_badlogin_user(client, db_instance):
