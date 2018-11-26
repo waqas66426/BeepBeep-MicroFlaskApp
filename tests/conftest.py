@@ -1,8 +1,12 @@
 import pytest
 import os
-from app import create_testing_app
 from database import db
 import subprocess
+
+MOCK_DATASERVICE = "https://mockdataservice.com"
+os.environ['DATA_SERVICE'] = MOCK_DATASERVICE
+
+from app import create_testing_app
 
 
 @pytest.fixture
