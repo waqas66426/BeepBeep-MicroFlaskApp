@@ -4,13 +4,13 @@ from tests.conftest import MOCK_DATASERVICE
 
 # USAGE CASE:
 
-#  with UserContext(client,email,password) as uc:
+#  with UserContext(client, requests_mock) as uc:
 #
-#      perform actions with the created and logged user
-#      condition_to_verify = Method_to_test()
+#      the user is created with some runs and logged
+#      [... test the views ...]
 #
 #  exited from the context (the user has been deleted)
-#  assert condition_to_verify
+
 
 class UserContext:
     email = 'mock@mock.com'
@@ -67,17 +67,20 @@ class UserContext:
         self.delete_user(self.client, self.password)
 
     @staticmethod
-    def init_mock_dataservice( requests_mock, user_json=mockuser, runs_json=mockruns ):
+    def init_mock_dataservice(requests_mock, user_json=mockuser, runs_json=mockruns):
         requests_mock.post(MOCK_DATASERVICE + "/users", json=user_json, status_code=201)
         requests_mock.get(MOCK_DATASERVICE + "/users", json=[user_json], status_code=200)
         requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_json['id']) + "/runs", json=runs_json, status_code=200)
+
         requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_json['id']) + "/objectives", json=[], status_code=200)
         requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_json['id']) + "/challenges", json=[], status_code=200)
 
+        requests_mock.delete(MOCK_DATASERVICE + "/users/" + str(user_json['id']), json="", status_code=204)
+
     @staticmethod
     def create_user(client, requests_mock, user_json=mockuser, runs_json=mockruns):
-        UserContext.init_mock_dataservice(requests_mock, user_json, runs_json)
 
+        UserContext.init_mock_dataservice(requests_mock, user_json, runs_json)
         response = client.post(
             '/create_user',
             data=user_json,
@@ -88,6 +91,7 @@ class UserContext:
 
     @staticmethod
     def login(client, email=mockuser['email'], password=mockuser['password']):
+
         response = client.post(
             '/login',
             data=dict(
@@ -110,8 +114,8 @@ class UserContext:
         return response
 
 
-def create_login_user(client, user_json):
-    UserContext.create_user(client, user_json)
+def create_login_user(client, requests_mock, user_json=UserContext.mockuser, runs_json=UserContext.mockruns):
+    UserContext.create_user(client, requests_mock, user_json, runs_json)
     UserContext.login(client, user_json['email'], user_json['password'])
 
 

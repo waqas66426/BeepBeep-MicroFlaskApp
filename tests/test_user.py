@@ -1,6 +1,5 @@
 from database import User
 from tests.user_context import *
-from random import randint
 
 email = "mock@example.com"
 password = "7"
@@ -34,26 +33,23 @@ def test_login_user(client, db_instance, requests_mock):
     assert response.status_code == 200
 
 
-def tst_badlogin_user(client, db_instance):
-    UserContext.create_user(client, email, password)
-
-    response = UserContext.login(client, email, password + "wrong")
-    delete_logged_user(client, email, password)
+def test_badlogin_user(client, db_instance, requests_mock):
+    UserContext.create_user(client,requests_mock)
+    response = UserContext.login(client, password="wrong")
 
     assert response.status_code == 401
 
 
-def tst_delete_user(client, db_instance):
-    create_login_user(client, email, password)
+def test_delete_user(client, db_instance, requests_mock):
+    create_login_user(client, requests_mock)
 
-    response = UserContext.delete_user(client, password)
+    response = UserContext.delete_user(client)
     assert response.status_code == 200
 
 
-def tst_baddelete_user(client, db_instance):
-    create_login_user(client, email, password)
+def test_baddelete_user(client, db_instance, requests_mock):
+    create_login_user(client, requests_mock)
 
-    response = UserContext.delete_user(client, password + "wrong")
-    UserContext.delete_user(client, password)
+    response = UserContext.delete_user(client, password="wrong")
 
     assert response.status_code == 401
