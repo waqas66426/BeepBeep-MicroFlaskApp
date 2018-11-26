@@ -32,7 +32,7 @@ def create_user():
         response = requests.get( DATASERVICE + '/users').json()
 
         if len(response) > 0:
-            if not next((user for user in response if user["email"] == new_user.email), True):
+            if next((user for user in response if user["email"] == new_user.email), True):
 
                 response = requests.post(
                     DATASERVICE + '/users', json=new_user.to_json())
