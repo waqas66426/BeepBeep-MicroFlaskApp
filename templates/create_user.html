@@ -8,31 +8,31 @@
 <body>
   {% include 'header.html' %}
   <div class="intro-header">
-      <div class="container">
-          <div class="row">
-            <!-- Not working ?? -->
-              {% if existingUserError %}
-              <p> {{ challengeError }} </p>
-              {% endif %}
-              <form action="" method="POST">
-                {{ form.hidden_tag() }}
-                <dl>
-                  {% for field in form.display %}
-                  <dt>{{ form[field].label }}</dt>
-                  <dd>{{ form[field]() }}</dd>
-                  {% if form[field].errors %}
-                  {% for e in form[field].errors %}
-                  <p class="help-block">{{ e }}</p>
-                  {% endfor %}
-                  {% endif %}
-                  {% endfor %}
-                </dl>
-                <p>
-                  <input type=submit value="Confirm">
-              </form>
-            </div>
-        </div>
+    <div class="container">
+      <div class="row">
+        {% if error %}
+        <p style="color: red">{{ error }}</p>
+        {% endif %}
+
+        <form action="" method="POST">
+          {{ form.hidden_tag() }}
+          <dl>
+            {% for field in form.display %}
+            <dt>{{ form[field].label }}</dt>
+            <dd>{{ form[field]() }}</dd>
+            {% if form[field].errors %}
+            {% for e in form[field].errors %}
+            <p class="help-block" style="color: red">{{ e }}</p>
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+          </dl>
+          <p>
+            <input type=submit value="Confirm">
+        </form>
+      </div>
     </div>
+  </div>
 </body>
 
 </html>

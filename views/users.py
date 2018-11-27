@@ -45,11 +45,8 @@ def create_user():
                     return redirect('/users')
         
         
-        return redirect('/create_user?challengeError=Please select exactly one run to challenge')
-
-        
-
-    return render_template('create_user.html', form=form)
+    error = 'Please insert another email'
+    return render_template('create_user.html', form=form , error=error)
 
 
 @users.route("/delete_user", methods=['POST', 'GET'])
