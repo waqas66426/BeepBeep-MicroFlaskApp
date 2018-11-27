@@ -64,7 +64,7 @@ class UserContext:
         self.requests_mock = requests_mock
 
     def __enter__(self):
-        self.create_user(self.client, self.requests_mock, self.current_user, self.current_user)
+        self.create_user(self.client, self.requests_mock, self.current_user, self.current_runs)
         self.login(self.client, self.email, self.password)
 
     def __exit__(self, *args):
