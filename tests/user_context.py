@@ -83,6 +83,9 @@ class UserContext:
 
         requests_mock.delete(MOCK_DATASERVICE + "/users/" + str(user_json['id']), json="", status_code=204)
 
+        for run in runs_json:
+            requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_json['id'])+"/runs/"+run["id"], json=run, status_code=200)
+
         requests_mock.post(
             "https://www.strava.com/oauth/token?client_id=00000&client_secret=00000&code=4y3t74324t82t28t",
             json={"access_token": "faketoken"})

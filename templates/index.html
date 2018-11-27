@@ -22,9 +22,8 @@
             <div class="runs">
               <input type="checkbox" name="runs" value="{{run.id}}">
               <!--coloring the fetched runs checking their id in the lists-->
-              <a class="run" href="/runs/{{run.id}}" {% if run.id in challenged_run %} style="color:yellow" {% elif run.id in
-                challenge_green %} style="color:green" {% elif run.id in challenge_red %} style="color:red" {% elif
-                run.id in challenge_orange %} style="color:orangered" {% endif %}> {{run.title}} </a>
+              <a class="run" href="/runs/{{run.id}}" {% if run.id | int in challenged_run %} style="color:yellow" {% elif run.id | int in challenge_green %} style="color:green" {% elif run.id | int in challenge_red %} style="color:red" {% elif
+                run.id | int in challenged_orange %} style="color:orangered" {% endif %}> {{run.title}} </a>
             </div>
           </div>
           {% endfor %}
