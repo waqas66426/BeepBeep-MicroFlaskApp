@@ -44,7 +44,7 @@ class UserContext:
             {
             "title": "Example Run",
             "description": "Nice run",
-            "strava_id": 42,
+            "strava_id": 24,
             "distance": 25,
             "start_date": 20181122,
             "elapsed_time": 42,
