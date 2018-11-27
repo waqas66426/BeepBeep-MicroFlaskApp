@@ -1,10 +1,21 @@
 from app import create_testing_app
-from database import Run, User, _delete_user
+#from database import Run, User, _delete_user
 import random
+from tests.user_context import *
+
+def test_runs(client,db_instance, requests_mock):
+	with UserContext(client,requests_mock) as uc:
+		response = client.get("/runs/1")
+		assert response.status_code == 200
+
+
+
+
+
 
 
 #if any of runs were deleted
-def test_runs1(db_instance):
+def tst_runs1(db_instance):
 	email = 'mock' + str(random.randint(1, 101)) + '@mock.com'
 	password = 'mock'
 	example = User()
@@ -40,7 +51,7 @@ def test_runs1(db_instance):
 
 
 #if given id is larger than all run's  id
-def test_runs2(db_instance):
+def tst_runs2(db_instance):
 	email = 'mock' + str(random.randint(1, 101)) + '@mock.com'
 	password = 'mock'
 	example = User()

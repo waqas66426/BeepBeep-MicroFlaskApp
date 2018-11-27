@@ -29,7 +29,9 @@ class UserContext:
         'vo2max': '42'
     }
 
+
     mockruns = [{
+            "id": 1,
             "title": "Example Run",
             "description": "Nice run",
             "strava_id": 42,
@@ -42,6 +44,7 @@ class UserContext:
             "runner_id": mockuser['id']
             },
             {
+            "id": 2,
             "title": "Example Run",
             "description": "Nice run",
             "strava_id": 24,
@@ -54,13 +57,14 @@ class UserContext:
             "runner_id": mockuser['id']
             }]
 
-    def __init__(self, client, requests_mock, user_json=mockuser):
+    def __init__(self, client, requests_mock, user_json=mockuser, runs_json=mockruns):
         self.client = client
         self.current_user = user_json
+        self.current_runs = runs_json
         self.requests_mock = requests_mock
 
     def __enter__(self):
-        self.create_user(self.client, self.request_mock, self.current_user)
+        self.create_user(self.client, self.requests_mock, self.current_user, self.current_user)
         self.login(self.client, self.email, self.password)
 
     def __exit__(self, *args):
