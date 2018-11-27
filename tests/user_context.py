@@ -32,7 +32,7 @@ class UserContext:
 
     mockruns = [{
             "id": 1,
-            "title": "Example Run",
+            "title": "Example Run1",
             "description": "Nice run",
             "strava_id": 42,
             "distance": 25,
@@ -45,7 +45,7 @@ class UserContext:
             },
             {
             "id": 2,
-            "title": "Example Run",
+            "title": "Example Run2",
             "description": "Nice run",
             "strava_id": 24,
             "distance": 25,
@@ -65,7 +65,7 @@ class UserContext:
 
     def __enter__(self):
         self.create_user(self.client, self.requests_mock, self.current_user, self.current_runs)
-        self.login(self.client, self.email, self.password)
+        self.login(self.client, self.current_user['email'], self.current_user['password'])
 
     def __exit__(self, *args):
         self.delete_user(self.client, self.password)
@@ -73,13 +73,19 @@ class UserContext:
     @staticmethod
     def init_mock_dataservice(requests_mock, user_json=mockuser, runs_json=mockruns):
         requests_mock.post(MOCK_DATASERVICE + "/users", json=user_json, status_code=201)
-        requests_mock.get(MOCK_DATASERVICE + "/users", json=[user_json], status_code=200)
+        requests_mock.get(MOCK_DATASERVICE + "/users" , json=[user_json], status_code=200)
+        requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_json['id']), json=user_json, status_code=200)
+        requests_mock.put(MOCK_DATASERVICE + "/users/" + str(user_json['id']), json=user_json, status_code=200)
         requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_json['id']) + "/runs", json=runs_json, status_code=200)
 
         requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_json['id']) + "/objectives", json=[], status_code=200)
         requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_json['id']) + "/challenges", json=[], status_code=200)
 
         requests_mock.delete(MOCK_DATASERVICE + "/users/" + str(user_json['id']), json="", status_code=204)
+
+        requests_mock.post(
+            "https://www.strava.com/oauth/token?client_id=00000&client_secret=00000&code=4y3t74324t82t28t",
+            json={"access_token": "faketoken"})
 
     @staticmethod
     def create_user(client, requests_mock, user_json=mockuser, runs_json=mockruns):
@@ -104,6 +110,9 @@ class UserContext:
             ),
             follow_redirects=True
         )
+
+        client.get("/strava_auth?state=&code=4y3t74324t82t28t&scope=")
+        client.get("/")
         return response
 
     @staticmethod

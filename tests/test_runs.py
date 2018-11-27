@@ -2,12 +2,21 @@ from app import create_testing_app
 #from database import Run, User, _delete_user
 import random
 from tests.user_context import *
+from pyquery import PyQuery as pq
 
-def test_runs(client,db_instance, requests_mock):
+def test_single_run(client,db_instance, requests_mock):
 	with UserContext(client,requests_mock) as uc:
 		response = client.get("/runs/1")
 		assert response.status_code == 200
 
+def tst_home_runs(client,db_instance, requests_mock):
+	with UserContext(client, requests_mock) as uc:
+
+		response=client.get("/")
+		html = pq(response.data)
+		tmp=(html("a").html())
+		print(tmp)
+		assert 1 == 0
 
 
 
