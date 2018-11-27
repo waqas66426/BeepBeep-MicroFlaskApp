@@ -24,12 +24,13 @@ def _users():
 @users.route('/create_user', methods=['POST', 'GET'])
 def create_user():
     form = UserForm()
+    error = ''
     if form.validate_on_submit():
         new_user = User()
         form.populate_obj(new_user)
         new_user.set_password(form.password.data)
 
-        response = requests.get( DATASERVICE + '/users').json()
+        response = requests.get(DATASERVICE + '/users').json()
 
         if len(response) > 0:
             if next((user for user in response if user["email"] == new_user.email), True):
@@ -41,12 +42,11 @@ def create_user():
                     new_user.id = response.json()['id']
                     db.session.add(new_user)
                     db.session.commit()
-
                     return redirect('/users')
-        
-        
-    error = 'Please insert another email'
-    return render_template('create_user.html', form=form , error=error)
+                else:
+                    error = 'Please insert another email'
+
+    return render_template('create_user.html', form=form, error=error)
 
 
 @users.route("/delete_user", methods=['POST', 'GET'])
@@ -64,7 +64,7 @@ def delete_user():
         q = db.session.query(User).filter(User.id == current_user.id)
         user = q.first()
         requests.delete(DATASERVICE + '/users/' + str(current_user.id))
-        
+
         if user is not None and user.authenticate(password):
             logout_user()
             # delete the user and all his data
