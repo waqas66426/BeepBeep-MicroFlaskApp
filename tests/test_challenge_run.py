@@ -1,4 +1,5 @@
 from database import User, Run, db, Challenge
+from tests.user_context import *
 from forms import ChallengeForm
 from tests.utils import ensure_logged_in
 
@@ -14,10 +15,21 @@ def _copy_run(runs, index):
     return r1
 
 
-def test_challenge_run(client, db_instance):
+def test_challenge_run(client, db_instance, requests_mock):
 
-    # simulate login
-    user = ensure_logged_in(client, db_instance)
+    exampleuser = {
+            'id': 22,
+            'email': email,
+            'firstname': 'Mario',
+            'lastname': 'Rossi',
+            'password': password,
+            'strava_token' : 'f4k&t0ken',
+            'age': '7',
+            'weight': '22',
+            'max_hr': '22',
+            'rest_hr': '22',
+            'vo2max': '7'
+        }
 
     # generate some runs
     runs = []
@@ -37,70 +49,22 @@ def test_challenge_run(client, db_instance):
             run.elapsed_time = 1
             run.distance = 1
         runs.append(run)
+    #TODO jsonify the mock runs above
+        
+    data = {
+        "id": 1,
+        "run_id": 1,
+        "latest_run_id": 0
+    }
+    r = client.post( "/users/1/challenges", json=data)
+    data.update({"runner_id": 1})
+    request = r.get_json()
+    assert request == data
 
-    # truncate runs table
-    db_instance.session.query(Run).delete()
-    db_instance.session.flush()
-    db_instance.session.commit()
 
-    r1 = _copy_run(runs, 0)
-    r2 = _copy_run(runs, 1)
+    # TODO add runs_json to create user
+    UserContext.create_user(client, requests_mock, user_json=exampleuser) as uc:
+        requests_mock.get(MOCK_DATASERVICE + "/user/22/challenges", json=[])
 
-    db_instance.session.add(r1)
-    db_instance.session.add(r2)
-
-    db_instance.session.flush()
-    db_instance.session.commit()
-
-    # route back to index page
-    res = client.post(
-        '/challenge',
-        data={
-            'runs': ['1']
-        },
-        follow_redirects=True
-    )
-
-    challenged = db_instance.session.query(Challenge).filter(user.id == Run.runner_id).first()
-
-    assert challenged
-    assert challenged.run_id == 1
-
-    r3 = _copy_run(runs, 2)
-    r4 = _copy_run(runs, 3)
-    r5 = _copy_run(runs, 4)
-
-    db_instance.session.add(r3)
-    db_instance.session.add(r4)
-    db_instance.session.add(r5)
-
-    db_instance.session.flush()
-    db_instance.session.commit()
-
-    toCompare = db_instance.session.query(Run).filter(user.id == Run.runner_id, Run.id > challenged.latest_run_id).all()
-
-    assert len(toCompare) == 3
-
-    better = 0
-    worse = 0
-    for run in toCompare:
-        if run.average_speed > challenged.run.average_speed and run.distance > challenged.run.distance:
-            better += 1
-        else:
-            worse += 1
-
-    assert better == 2
-    assert worse == 1
-    assert better + worse == 3
-
-    res = client.post(
-        '/challenge',
-        data={
-            'runs': ['1']
-        },
-        follow_redirects=True
-    )
-
-    challenged = db_instance.session.query(Challenge).filter(user.id == Run.runner_id).first()
-
-    assert not challenged
+    
+    
