@@ -16,17 +16,32 @@ def test_objective(client, db_instance, requests_mock):
             }
         
         requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_id) + '/objectives', json=[obj_json])
-        html = pq(client.get('/').data).text()
-        showed_distance = re.search( 'Distance objective: (.*) km', html).group(1)
-        
-        assert obj_json['distance'] == km2m(float(showed_distance))
+        res = pq(client.get('/').data)
+
+        #testing set objective
+        obj_distance = km2m( float ( res("#obj_dist").html() ) )
+        assert obj_json['distance'] == obj_distance
         assert obj_json['user_id'] == user_id
 
-        #change objective
-        obj_json['distance'] = 10
-
-        requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_id) + '/objectives', json=[obj_json])
-        html = pq(client.get('/').data).text()
-        showed_distance = re.search( 'Distance objective: (.*) km', html).group(1)
         
-        assert obj_json['distance'] == km2m(float(showed_distance))
+        obj_json['distance'] = 100000
+        requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_id) + '/objectives', json=[obj_json])
+        res = pq(client.get('/').data)
+
+        #testing changed objective
+        obj_distance = km2m( float( res("#obj_dist").html() ) )
+        assert obj_json['distance'] == obj_distance
+
+        #Testing total distance in "PROGRESS" field
+        total_distance = sum( run['distance'] for run in UserContext.mockruns)
+        showed_tot_distance = km2m( float( res("#tot_dist").html() ) )
+        assert total_distance == showed_tot_distance
+
+        #Testing remaining distance in "PROGRESS" field
+        rem_km = km2m( float( res("#rem_KM").html() ) )
+
+        assert (rem_km >= 0.0)
+        assert rem_km == (obj_distance - total_distance)
+
+
+                
