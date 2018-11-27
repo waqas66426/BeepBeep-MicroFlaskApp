@@ -1,38 +1,32 @@
-from database import User, Objectives, Run, _setObjective
+from database import User
+from tests.user_context import *
 from views.util import km2m
 from pyquery import PyQuery as pq
-from tests.utils import create_mock_user, ensure_logged_in
+import re
 
-def test_objective(client, db_instance):
+def test_objective(client, db_instance, requests_mock):
+    
+    with UserContext(client, requests_mock) as _ :
+        user_id = UserContext.mockuser['id']
+        
+        #fake objective
+        obj_json = {
+            'distance' : 100,
+            'user_id' : user_id
+            }
+        
+        requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_id) + '/objectives', json=[obj_json])
+        html = pq(client.get('/').data).text()
+        showed_distance = re.search( 'Distance objective: (.*) km', html).group(1)
+        
+        assert obj_json['distance'] == km2m(float(showed_distance))
+        assert obj_json['user_id'] == user_id
 
-    #ensure login
-    user = ensure_logged_in(client, db_instance)
+        #change objective
+        obj_json['distance'] = 10
 
-    #create 2 fake runs
-    runs_id = ['1', '2']
-    for i in runs_id:
-        run = Run()
-        run.runner = user
-        run.strava_id = i
-        run.distance = 1000
-        run.average_speed = 10
-        run.elapsed_time= 10000
-        db_instance.session.add(run)
-
-    db_instance.session.commit()
-
-    #set objective
-    objective_distance = 1000
-    _setObjective(user, objective_distance)
-
-    #check that the objective is correctly settend in the database
-    assert db_instance.session.query(Objectives).first().distance == 1000
-
-    #check that the objective is correctly showed in the view
-    res = client.get('/')
-    html = pq(res.data)
-
-    objective_view = km2m(float(html("#obj_dist").html()))    
-
-    #check the view converting the distance to km
-    assert objective_view == objective_distance
+        requests_mock.get(MOCK_DATASERVICE + "/users/" + str(user_id) + '/objectives', json=[obj_json])
+        html = pq(client.get('/').data).text()
+        showed_distance = re.search( 'Distance objective: (.*) km', html).group(1)
+        
+        assert obj_json['distance'] == km2m(float(showed_distance))
